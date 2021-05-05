@@ -21,8 +21,6 @@ class MeinThread(threading.Thread):
 
 def print_time(threadName, counter, delay):
     while counter:
-        if exitFlag:
-            threadName.exit()
         time.sleep(delay)
         print ("%s : %s" % (threadName, time.ctime(time.time())))
         counter -= 1
