@@ -2,27 +2,45 @@
 import socket, threading
 import tkinter as tk
 
-# nickname = input("Wähle deinen Nicknamen: ")
-# client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # socket initialization
-# client.connect(('127.0.0.1', 7976))  # connecting client to server
-
+client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # socket initialization
 FORMAT = "utf-8"
 
 
 # GUI class for the chat
 class GUI:
+
+
     # constructor method
     def __init__(self):
-
         # chat window which is currently hidden
-        self.window = tk.Tk
+        self.entry3 = None
+        self.entry2 = None
+        self.entry1 = None
+        window = tk.Tk()
 
-        l1 = tk.Label(text="Hello")
-        l1.pack()
+        self.l1 = tk.Label(text="Username:").grid(row=0, column=0)
+        self.e1 = tk.Entry(textvariable=self.entry1).grid(row=0, column=1)
+
+        self.l2 = tk.Label(text="IP-Address:").grid(row=1, column=0)
+        self.e2 = tk.Entry(textvariable=self.entry2).grid(row=1, column=1)
+
+        self.l3 = tk.Label(text="Port:").grid(row=2, column=0)
+        self.e3 = tk.Entry(textvariable=self.entry3).grid(row=2, column=1)
+
+        self.b1 = tk.Button(text="Submit").grid(row=3, column=0, columnspan=2, sticky=tk.N + tk.S + tk.E + tk.W, command=self.submit())
 
         # self.Window.withdraw()
 
-        self.window.mainloop()
+        window.mainloop()
+
+    def submit(self):
+        self.username = self.entry1.get()
+        self.address = self.entry2.get()
+        self.port = self.entry3.get()
+
+        client.connect((self.address, self.port))  # connecting client to server
+
+
 """
     def nextWindow(self, name):
         self.login.destroy()

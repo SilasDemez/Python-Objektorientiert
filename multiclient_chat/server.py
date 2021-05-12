@@ -36,7 +36,7 @@ def receive():  # mehrere Clients empfangen
     while True:
         client, address = server.accept()
         print("Verbunden mit {}".format(str(address)))
-        client.send('NICKNAME'.encode('utf8'))
+        client.send('Nickname eingeben:'.encode('utf8'))
         nickname = client.recv(1024).decode('utf8')
         nicknames.append(nickname)
         clients.append(client)
