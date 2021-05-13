@@ -22,6 +22,7 @@ def handle(client):
         try:  # recieving messages vom Client
             message = client.recv(1024)
             broadcast(message)
+            print("Mesage: " + message)
         except:  # löschen der Clients
             index = clients.index(client)
             clients.remove(client)

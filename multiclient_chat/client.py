@@ -8,15 +8,24 @@ FORMAT = "utf-8"
 
 # GUI class for the chat
 class GUI:
+    username = ""
+    address = ""
+    port = 0
 
+    text = 0
+    textentry = 0
+
+    index = 0
 
     # constructor method
     def __init__(self):
-        # chat window which is currently hidden
-        self.entry3 = None
-        self.entry2 = None
-        self.entry1 = None
-        window = tk.Tk()
+        self.window = tk.Tk()
+        self.chatwindow = tk.Tk()
+        self.chatwindow.withdraw()
+
+        self.entry1 = tk.StringVar(self.window)
+        self.entry2 = tk.StringVar(self.window)
+        self.entry3 = tk.IntVar(self.window)
 
         self.l1 = tk.Label(text="Username:").grid(row=0, column=0)
         self.e1 = tk.Entry(textvariable=self.entry1).grid(row=0, column=1)
@@ -27,11 +36,10 @@ class GUI:
         self.l3 = tk.Label(text="Port:").grid(row=2, column=0)
         self.e3 = tk.Entry(textvariable=self.entry3).grid(row=2, column=1)
 
-        self.b1 = tk.Button(text="Submit").grid(row=3, column=0, columnspan=2, sticky=tk.N + tk.S + tk.E + tk.W, command=self.submit())
+        self.b1 = tk.Button(text="Submit", command=self.submit).grid(row=3, column=0, columnspan=2,
+                                                                     sticky=tk.N + tk.S + tk.E + tk.W)
 
-        # self.Window.withdraw()
-
-        window.mainloop()
+        self.window.mainloop()
 
     def submit(self):
         self.username = self.entry1.get()
@@ -39,6 +47,33 @@ class GUI:
         self.port = self.entry3.get()
 
         client.connect((self.address, self.port))  # connecting client to server
+
+        self.window.withdraw()
+
+        self.chat()
+
+    def chat(self):
+        self.chatwindow.deiconify()
+        self.text = tk.Text(self.chatwindow).grid(row=0, column=0)
+        self.textentry = tk.Entry(self.chatwindow, textvariable=self.entry1).grid(row=1, column=0,
+                                                                                  sticky=tk.N + tk.S + tk.E + tk.W)
+        b1 = tk.Button(self.chatwindow, text="Send", command=self.sendmessage).grid(row=1, column=1,
+                                                                                    sticky=tk.N + tk.S + tk.E + tk.W)
+        self.chatwindow.mainloop()
+
+        while True:
+            bmsg = client.recv(1024)
+            msg = str(bmsg, "utf8");
+            print("Got a message: " + msg)
+            self.text.insert(self.index, msg)
+            self.index = self.index + 1
+            if (msg == "Bye"):
+                break
+        socket.close()
+
+    def sendmessage(self):
+        print("Test")
+        client.sendall(bytes(self.entry1.get(), "utf8"))
 
 
 """
