@@ -72,8 +72,8 @@ class GUI:
         socket.close()
 
     def sendmessage(self):
-        print("Test")
-        client.sendall(bytes(self.entry1.get(), "utf8"))
+        print("Sending this message: " + self.entry1.get())
+        client.send(bytes(self.entry1.get(), "utf8"))
 
 
 """
