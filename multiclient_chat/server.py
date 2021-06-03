@@ -55,16 +55,25 @@ def startChat():
 # method to handle the
 # incoming messages
 def handle(conn, addr):
-    print(f"new connection {addr}")
+    print("WTF")
+    # print(f"new connection {addr}")
+
     connected = True
+
+    # str = username + " joined the chat!"
+    # broadcastMessage(str)
+    # print(username + " joined the chat!")
+
 
     while connected:
         # recieve message
+        print("Waiting for message")
         message = conn.recv(1024)
+
         print(message)
 
         # broadcast message
-        broadcastMessage(message)
+        broadcastMessage(message.encode("utf-8"))
 
     # close the connection
     conn.close()
@@ -139,5 +148,7 @@ def receive():  # mehrere Clients empfangen
         client.send('Connected to server!'.encode('utf8'))
         thread = threading.Thread(target=handle, args=(client,))
         thread.start()
+
+
 
 

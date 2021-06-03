@@ -1,6 +1,7 @@
 # coding=utf-8
 import socket, threading
 import tkinter as tk
+import time
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # socket initialization
 FORMAT = "utf-8"
@@ -11,9 +12,6 @@ class GUI:
     username = ""
     address = ""
     port = 0
-
-    text = 0
-    textentry = 0
 
     index = 0
 
@@ -27,21 +25,32 @@ class GUI:
         self.entry2 = tk.StringVar(self.window)
         self.entry3 = tk.IntVar(self.window)
 
-        self.l1 = tk.Label(text="Username:").grid(row=0, column=0)
-        self.e1 = tk.Entry(textvariable=self.entry1).grid(row=0, column=1)
+        self.msg = tk.StringVar(self.chatwindow)
 
-        self.l2 = tk.Label(text="IP-Address:").grid(row=1, column=0)
-        self.e2 = tk.Entry(textvariable=self.entry2).grid(row=1, column=1)
+        self.l1 = tk.Label(self.window, text="Username:").grid(row=0, column=0)
+        self.e1 = tk.Entry(self.window, textvariable=self.entry1).grid(row=0, column=1)
 
-        self.l3 = tk.Label(text="Port:").grid(row=2, column=0)
-        self.e3 = tk.Entry(textvariable=self.entry3).grid(row=2, column=1)
+        self.l2 = tk.Label(self.window, text="IP-Address:").grid(row=1, column=0)
+        self.e2 = tk.Entry(self.window, textvariable=self.entry2).grid(row=1, column=1)
 
-        self.b1 = tk.Button(text="Submit", command=self.submit).grid(row=3, column=0, columnspan=2,
-                                                                     sticky=tk.N + tk.S + tk.E + tk.W)
+        self.l3 = tk.Label(self.window, text="Port:").grid(row=2, column=0)
+        self.e3 = tk.Entry(self.window, textvariable=self.entry3).grid(row=2, column=1)
+
+        self.b1 = tk.Button(self.window, text="Submit", command=self.submit).grid(row=3, column=0, columnspan=2,
+                                                                                  sticky=tk.N + tk.S + tk.E + tk.W)
+
+        self.textbox = tk.Text(self.chatwindow)
+        self.textbox.grid(row=0, column=0)
+        self.textentry = tk.Entry(self.chatwindow, textvariable=self.msg).grid(row=1, column=0,
+                                                                               sticky=tk.N + tk.S + tk.E + tk.W)
+
+        self.b2 = tk.Button(self.chatwindow, text="Send", command=self.sendmessage).grid(row=1, column=1,
+                                                                                         sticky=tk.N + tk.S + tk.E + tk.W)
 
         self.window.mainloop()
 
     def submit(self):
+
         self.username = self.entry1.get()
         self.address = self.entry2.get()
         self.port = self.entry3.get()
@@ -49,31 +58,48 @@ class GUI:
         client.connect((self.address, self.port))  # connecting client to server
 
         self.window.withdraw()
+        self.window.destroy()
 
-        self.chat()
+        # client.send(self.username.encode(FORMAT))
 
-    def chat(self):
         self.chatwindow.deiconify()
-        self.text = tk.Text(self.chatwindow).grid(row=0, column=0)
-        self.textentry = tk.Entry(self.chatwindow, textvariable=self.entry1).grid(row=1, column=0,
-                                                                                  sticky=tk.N + tk.S + tk.E + tk.W)
-        b1 = tk.Button(self.chatwindow, text="Send", command=self.sendmessage).grid(row=1, column=1,
-                                                                                    sticky=tk.N + tk.S + tk.E + tk.W)
+
+        self.textbox.insert("end", "hoi")
+
+        t = threading.Thread(target=self.receive())
+        t.start()
+
         self.chatwindow.mainloop()
 
-        while True:
-            bmsg = client.recv(1024)
-            msg = str(bmsg, "utf8");
-            print("Got a message: " + msg)
-            self.text.insert(self.index, msg)
-            self.index = self.index + 1
-            if (msg == "Bye"):
-                break
-        socket.close()
-
     def sendmessage(self):
-        print("Sending this message: " + self.entry1.get())
-        client.send(bytes(self.entry1.get(), "utf8"))
+        msg = self.msg.get()
+        msg = (f"{self.username}: {msg}")
+        print("Sending this message: " + msg)
+        client.send(msg.encode(FORMAT))
+
+    def receive(self):
+        while True:
+            try:
+                print("Waiting for message")
+                time.sleep(1)
+                msg = client.recv(1024).decode(FORMAT)
+                print("Message: " + msg)
+                if msg == 'NAME':
+                    client.send(self.username.encode(FORMAT))
+                elif msg == "":
+                    pass
+                else:
+                    # self.textbox.configure(state="normal")
+                    print("Trying to write to textbox")
+                    self.textbox.insert("end", "msg")
+                    # self.textbox.configure(state="disabled")
+                    print("WTF")
+            except:
+                print("FATAL ERROR!")
+                client.close()
+                break
+
+
 
 
 """
